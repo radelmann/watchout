@@ -9,6 +9,12 @@ var gameOpts = {
 var score = 0;
 var bestScore = 0;
 
+// var axes = {
+//   x: d3.scale.linear().domain([0, 100]).range([0, gameOpts.width]),
+//   y: d3.scale.linear().domain([0, 100]).range([0, gameOpts.height])
+// };
+
+
 //need a player class
 //player can be dragged by mouse
 //player needs to detect enemy collisions
@@ -57,74 +63,90 @@ enemies.enter().append('circle')
 enemies.exit()
   .remove();
 
-enemies.transition()
-  .duration(500)
-  .attr('r', 10)
-  .transition()
-  .duration(2000)
-  .tween('custom', function(endData) {
-    var enemy = d3.select(this);
+function animate() {
+  enemies.transition()
+    .duration(500)
+    .attr('r', 10)
+    .transition()
+    .duration(2000)
+    .tween('custom', function(endData) {
 
-    var startPos = {
-      x: parseFloat(enemy.attr('cx')),
-      y: parseFloat(enemy.attr('cy'))
-    };
+      var enemy = d3.select(this);
 
-    var endPos = {
-      // x: axes.x(endData.cx),
-      // y: axes.y(endData.cy)
-      x: endData.cx,
-      y: endData.cy
-    };
-
-    return function(t) {
-      checkCollisions(enemy)
-
-      var enemyNextPos = {
-        x: startPos.x + (endPos.x - startPos.x) * t,
-        y: startPos.y + (endPos.y - startPos.y) * t
+      var startPos = {
+        x: parseFloat(enemy.attr('cx')),
+        y: parseFloat(enemy.attr('cy'))
       };
 
-      enemy.attr('cx', enemyNextPos.x)
-        .attr('cy', enemyNextPos.y);
-    };
-  });
+      var endPos = {
+        x: Math.random() * 800,
+        y: Math.random() * 800
+      };
 
-var tweenWithCollisionDetection = function(endData) {
+      return function(t) {
+        checkCollisions(enemy)
 
-  // d3.select(obj).transition().duration(1000)
-  //   .attr("cx", Math.random() * 800)
-  //   .attr("cy", Math.random() * 800)
-  //   .each("end", function() {
-  //     animateEnemy(obj);
-  //   });
+        var enemyNextPos = {
+          x: startPos.x + (endPos.x - startPos.x) * t,
+          y: startPos.y + (endPos.y - startPos.y) * t
+        };
 
-  var enemy = d3.select('#' + endData.id);
-
-  var startPos = {
-    x: parseFloat(enemy.attr('cx')),
-    y: parseFloat(enemy.attr('cy'))
-  };
-
-  var endPos = {
-    // x: axes.x(endData.cx),
-    // y: axes.y(endData.cy)
-    x: endData.cx,
-    y: endData.cy
-  };
-
-  return function(t) {
-    checkCollisions(enemy, onCollision)
-
-    var enemyNextPos = {
-      x: startPos.x + (endPos.x - startPos.x) * t,
-      y: startPos.y + (endPos.y - startPos.y) * t
-    };
-
-    enemy.attr('cx', enemyNextPos.x)
-      .attr('cy', enemyNextPos.y);
-  };
+        enemy.attr('cx', enemyNextPos.x)
+          .attr('cy', enemyNextPos.y);
+      };
+    });
 }
+
+setInterval(animate, 2000);
+
+// .attr('cx', function(d) {
+//   return d.cx;
+// })
+// .attr('cy', function(d) {
+//   return d.cy;
+// })
+// .attr('r', function(d) {
+//   return d.r;
+// });
+
+// var tweenWithCollisionDetection = function(endData) {
+// enemy.transition().duration(1000)
+// .attr("cx", Math.random() * 800)
+// .attr("cy", Math.random() * 800)
+// .each("end", function() {
+//   //animateEnemy(obj);
+// })
+
+// d3.select(obj).transition().duration(1000)
+//   .attr("cx", Math.random() * 800)
+//   .attr("cy", Math.random() * 800)
+//   .each("end", function() {
+//     animateEnemy(obj);
+//   });
+
+//   var enemy = d3.select('#' + endData.id);
+
+//   var startPos = {
+//     x: parseFloat(enemy.attr('cx')),
+//     y: parseFloat(enemy.attr('cy'))
+//   };
+
+//   var endPos = {
+//     x: axes.x(endData.cx),
+//     y: axes.y(endData.cy)
+//   };
+//   return function(t) {
+//     checkCollisions(enemy, onCollision)
+
+//     var enemyNextPos = {
+//       x: startPos.x + (endPos.x - startPos.x) * t,
+//       y: startPos.y + (endPos.y - startPos.y) * t
+//     };
+
+//     enemy.attr('cx', enemyNextPos.x)
+//       .attr('cy', enemyNextPos.y);
+//   };
+// }
 
 var checkCollisions = function(enemy) {
 
@@ -143,7 +165,7 @@ var checkCollisions = function(enemy) {
 
     var distance = Math.sqrt(Math.pow(vertical, 2) + Math.pow(horizontal, 2));
 
-    console.log(distance < (enemyR + playerR));
+    if (distance < (enemyR + playerR)) console.log('collision');
 
     //setTimeout(checkCollisions, 50);
   }

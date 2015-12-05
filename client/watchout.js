@@ -2,7 +2,7 @@
 var gameOpts = {
   width: 800,
   height: 800,
-  enemies: 3,
+  enemies: 30,
   padding: 20
 };
 
@@ -23,7 +23,7 @@ var enemiesCol = _.map(_.range(0, gameOpts.enemies), function(item, index) {
     'id': 'enemy-' + index,
     'cx': Math.random() * gameOpts.width,
     'cy': Math.random() * gameOpts.height,
-    'r': getRandomInt(12, 25),
+    'r': 0,
     'color': getRandomColor()
   };
 
@@ -66,7 +66,7 @@ enemies.exit()
 function animate() {
   enemies.transition()
     .duration(500)
-    .attr('r', 10)
+    .attr('r', getRandomInt(12, 20))
     .transition()
     .duration(2000)
     .tween('custom', function(endData) {

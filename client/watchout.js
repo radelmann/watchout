@@ -6,18 +6,13 @@ var gameOpts = {
   padding: 20
 };
 
-var score = 0;
-var bestScore = 0;
-
-// var axes = {
-//   x: d3.scale.linear().domain([0, 100]).range([0, gameOpts.width]),
-//   y: d3.scale.linear().domain([0, 100]).range([0, gameOpts.height])
-// };
+var gameStats = {
+  score: 0,
+  bestScore: 0,
+  collisions: 0
+};
 
 
-//need a player class
-//player can be dragged by mouse
-//player needs to detect enemy collisions
 var enemiesCol = _.map(_.range(0, gameOpts.enemies), function(item, index) {
   return {
     'id': 'enemy-' + index,
@@ -56,10 +51,6 @@ enemies.enter().append('circle')
     return d.color;
   });
 
-// .transition().each('end', function() {
-//   animateEnemy(this);
-// });
-
 enemies.exit()
   .remove();
 
@@ -93,60 +84,24 @@ function animate() {
 
         enemy.attr('cx', enemyNextPos.x)
           .attr('cy', enemyNextPos.y);
+
       };
     });
 }
 
 setInterval(animate, 2000);
 
-// .attr('cx', function(d) {
-//   return d.cx;
-// })
-// .attr('cy', function(d) {
-//   return d.cy;
-// })
-// .attr('r', function(d) {
-//   return d.r;
-// });
+var updateScore = function() {
+    d3.select('.currentInput')
+      .text(gameStats.score.toString())
 
-// var tweenWithCollisionDetection = function(endData) {
-// enemy.transition().duration(1000)
-// .attr("cx", Math.random() * 800)
-// .attr("cy", Math.random() * 800)
-// .each("end", function() {
-//   //animateEnemy(obj);
-// })
+    d3.select('.highscoreInput')
+      .text(gameStats.bestScore.toString());
 
-// d3.select(obj).transition().duration(1000)
-//   .attr("cx", Math.random() * 800)
-//   .attr("cy", Math.random() * 800)
-//   .each("end", function() {
-//     animateEnemy(obj);
-//   });
+    d3.select('.collisionsInput')
+      .text(gameStats.collisions.toString());
 
-//   var enemy = d3.select('#' + endData.id);
-
-//   var startPos = {
-//     x: parseFloat(enemy.attr('cx')),
-//     y: parseFloat(enemy.attr('cy'))
-//   };
-
-//   var endPos = {
-//     x: axes.x(endData.cx),
-//     y: axes.y(endData.cy)
-//   };
-//   return function(t) {
-//     checkCollisions(enemy, onCollision)
-
-//     var enemyNextPos = {
-//       x: startPos.x + (endPos.x - startPos.x) * t,
-//       y: startPos.y + (endPos.y - startPos.y) * t
-//     };
-
-//     enemy.attr('cx', enemyNextPos.x)
-//       .attr('cy', enemyNextPos.y);
-//   };
-// }
+  }
 
 var checkCollisions = function(enemy) {
 
@@ -165,9 +120,18 @@ var checkCollisions = function(enemy) {
 
     var distance = Math.sqrt(Math.pow(vertical, 2) + Math.pow(horizontal, 2));
 
-    if (distance < (enemyR + playerR)) console.log('collision');
+    if (distance < (enemyR + playerR)) {
+      gameStats.collisions++;
+      console.log('collision')
+      if (gameStats.score > gameStats.bestScore) {
+        gameStats.bestScore = gameStats.score;
+      }
+      gameStats.score = 0;
+    } else {
+      gameStats.score++;
+    }
+    updateScore();
 
-    //setTimeout(checkCollisions, 50);
   }
   //add player
 

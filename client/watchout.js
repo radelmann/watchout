@@ -2,7 +2,7 @@
 var gameOpts = {
   width: 800,
   height: 800,
-  enemies: 30,
+  enemies: 3,
   padding: 20
 };
 
@@ -14,7 +14,7 @@ var bestScore = 0;
 //player needs to detect enemy collisions
 var enemiesCol = _.map(_.range(0, gameOpts.enemies), function(item, index) {
   return {
-    'id': index,
+    'id': 'enemy-' + index,
     'cx': Math.random() * gameOpts.width,
     'cy': Math.random() * gameOpts.height,
     'r': getRandomInt(12, 25),
@@ -27,8 +27,6 @@ var svg = d3.select('body')
   .append('svg')
   .attr('width', gameOpts.width)
   .attr('height', gameOpts.height);
-
-//add enemies
 
 var enemies = svg.selectAll('circle')
   .data(enemiesCol, function(d) {
@@ -50,51 +48,106 @@ enemies.enter().append('circle')
   })
   .style('fill', function(d) {
     return d.color;
-  })
-  .transition().each('end', function() {
-    animateEnemy(this);
   });
 
-var animateEnemy = function(obj) {
+// .transition().each('end', function() {
+//   animateEnemy(this);
+// });
 
-  d3.select(obj).transition().duration(1000)
-    .attr("cx", Math.random() * 800)
-    .attr("cy", Math.random() * 800)
-    .each("end", function() {
-      animateEnemy(obj);
-    });
+enemies.exit()
+  .remove();
 
-  //if obj and player overlap 
-  // then collision
-  // console.dir(player);
+enemies.transition()
+  .duration(500)
+  .attr('r', 10)
+  .transition()
+  .duration(2000)
+  .tween('custom', function(endData) {
+    var enemy = d3.select(this);
 
-  //distance var equal to sqrt((player x - enemy x)^2 + (player y - enemy y)^2)
-  //if distance is less than the sum of the radii
-  //alert collission
-  //set score to 0
-  // var distance = Math.sqrt(player.data.cx)
-  var player = svg.select('#player');
-  var enemy = d3.select(obj);
+    var startPos = {
+      x: parseFloat(enemy.attr('cx')),
+      y: parseFloat(enemy.attr('cy'))
+    };
 
-  var playerX = parseFloat(player.attr('cx'));
-  var playerY = parseFloat(player.attr('cy'));
-  var playerR = parseFloat(player.attr('r'));
-  var enemyX = parseFloat(enemy.attr('cx'));
-  var enemyY = parseFloat(enemy.attr('cy'));
-  var enemyR = parseFloat(enemy.attr('r'));
+    var endPos = {
+      // x: axes.x(endData.cx),
+      // y: axes.y(endData.cy)
+      x: endData.cx,
+      y: endData.cy
+    };
 
-  var vertical = playerY - enemyY;
-  var horizontal = playerX - enemyX;
+    return function(t) {
+      checkCollisions(enemy)
 
-  var distance = Math.sqrt(Math.pow(vertical, 2) + Math.pow(horizontal, 2));
-  console.log(distance < (enemyR+playerR));
-  // if (distance < (enemyR+playerR)) {
-  //   console.log('collision');
-  // }
-  // //debugger;
+      var enemyNextPos = {
+        x: startPos.x + (endPos.x - startPos.x) * t,
+        y: startPos.y + (endPos.y - startPos.y) * t
+      };
+
+      enemy.attr('cx', enemyNextPos.x)
+        .attr('cy', enemyNextPos.y);
+    };
+  });
+
+var tweenWithCollisionDetection = function(endData) {
+
+  // d3.select(obj).transition().duration(1000)
+  //   .attr("cx", Math.random() * 800)
+  //   .attr("cy", Math.random() * 800)
+  //   .each("end", function() {
+  //     animateEnemy(obj);
+  //   });
+
+  var enemy = d3.select('#' + endData.id);
+
+  var startPos = {
+    x: parseFloat(enemy.attr('cx')),
+    y: parseFloat(enemy.attr('cy'))
+  };
+
+  var endPos = {
+    // x: axes.x(endData.cx),
+    // y: axes.y(endData.cy)
+    x: endData.cx,
+    y: endData.cy
+  };
+
+  return function(t) {
+    checkCollisions(enemy, onCollision)
+
+    var enemyNextPos = {
+      x: startPos.x + (endPos.x - startPos.x) * t,
+      y: startPos.y + (endPos.y - startPos.y) * t
+    };
+
+    enemy.attr('cx', enemyNextPos.x)
+      .attr('cy', enemyNextPos.y);
+  };
 }
 
-//add player
+var checkCollisions = function(enemy) {
+
+    //var enemy = d3.select(this);
+    var player = svg.select('#player');
+
+    var playerX = parseFloat(player.attr('cx'));
+    var playerY = parseFloat(player.attr('cy'));
+    var playerR = parseFloat(player.attr('r'));
+    var enemyX = parseFloat(enemy.attr('cx'));
+    var enemyY = parseFloat(enemy.attr('cy'));
+    var enemyR = parseFloat(enemy.attr('r'));
+
+    var vertical = playerY - enemyY;
+    var horizontal = playerX - enemyX;
+
+    var distance = Math.sqrt(Math.pow(vertical, 2) + Math.pow(horizontal, 2));
+
+    console.log(distance < (enemyR + playerR));
+
+    //setTimeout(checkCollisions, 50);
+  }
+  //add player
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;

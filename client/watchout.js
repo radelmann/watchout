@@ -2,7 +2,7 @@
 var gameOpts = {
   width: 800,
   height: 800,
-  enemies: 1,
+  enemies: 30,
   padding: 20
 };
 
@@ -76,22 +76,22 @@ var animateEnemy = function(obj) {
   var player = svg.select('#player');
   var enemy = d3.select(obj);
 
-  var playerX = player.attr('cx');
-  var playerY = player.attr('cy');
-  var playerR = player.attr('r');
-  var enemyX = enemy.attr('cx');
-  var enemyY = enemy.attr('cy');
-  var enemyR = enemy.attr('r');
+  var playerX = parseFloat(player.attr('cx'));
+  var playerY = parseFloat(player.attr('cy'));
+  var playerR = parseFloat(player.attr('r'));
+  var enemyX = parseFloat(enemy.attr('cx'));
+  var enemyY = parseFloat(enemy.attr('cy'));
+  var enemyR = parseFloat(enemy.attr('r'));
 
   var vertical = playerY - enemyY;
   var horizontal = playerX - enemyX;
 
   var distance = Math.sqrt(Math.pow(vertical, 2) + Math.pow(horizontal, 2));
-  console.log(distance);
-  if (distance < (enemyR+playerR)) {
-    console.log('collision');
-  }
-  debugger;
+  console.log(distance < (enemyR+playerR));
+  // if (distance < (enemyR+playerR)) {
+  //   console.log('collision');
+  // }
+  // //debugger;
 }
 
 //add player

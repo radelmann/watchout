@@ -92,20 +92,21 @@ function animate() {
 setInterval(animate, 2000);
 
 var updateScore = function() {
-    d3.select('.currentInput')
-      .text(gameStats.score.toString())
+  d3.select('.currentInput')
+    .text(gameStats.score.toString())
 
-    d3.select('.highscoreInput')
-      .text(gameStats.bestScore.toString());
+  d3.select('.highscoreInput')
+    .text(gameStats.bestScore.toString());
 
-    d3.select('.collisionsInput')
-      .text(gameStats.collisions.toString());
+  d3.select('.collisionsInput')
+    .text(gameStats.collisions.toString());
 
-  }
+}
+
+var lastCollision;
 
 var checkCollisions = function(enemy) {
 
-    //var enemy = d3.select(this);
     var player = svg.select('#player');
 
     var playerX = parseFloat(player.attr('cx'));
@@ -121,8 +122,12 @@ var checkCollisions = function(enemy) {
     var distance = Math.sqrt(Math.pow(vertical, 2) + Math.pow(horizontal, 2));
 
     if (distance < (enemyR + playerR)) {
-      gameStats.collisions++;
-      console.log('collision')
+      if (!lastCollision || lastCollision.attr('id') !== enemy.attr('id')) {
+        gameStats.collisions++;
+
+      }
+
+      lastCollision = enemy;
       if (gameStats.score > gameStats.bestScore) {
         gameStats.bestScore = gameStats.score;
       }
